@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <title>Hello, world!</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="description" content="" />
+  <link rel="stylesheet" href="https://js.arcgis.com/4.25/esri/themes/light/main.css">
+  <script src="https://js.arcgis.com/4.25/"></script>
+  <script>
+    require([
+      "esri/config",
+      "esri/Map",
+      "esri/views/MapView",
+      "esri/widgets/BasemapGallery",
+      "esri/widgets/Expand",
+      "esri/widgets/Search",
+      "esri/widgets/Locate",
+      "esri/Graphic",
+      "esri/layers/GraphicsLayer",
+
+      //adding in the module for the feature layers
+      "esri/layers/FeatureLayer"
+    ], function (
+      esriConfig,
+      EsriMap,
+      MapView,
+      BasemapGallery,
+      Expand,
+      Search,
+      Locate, Graphic, GraphicsLayer, FeatureLayer
+    ) {
+      // AAPTxy8BH1VEsoebNVZXo8HurI_RfmIe9k9xWA71ZLIIsczdLg11Hph-QWgzWd0_r5sbwnBerGwU8Wumof_lUh8dvOACtkjv05hpJVZUEfhD6boZk7bkfG7rJw19bjjE8jAAC-G_fXtuqjj5I3uDHPB1EGvWkBkfgHmutYJsNbTjw5I3iyTtwsO8soj9YfpgOvCnnUaIUGsrriFRQo9dOK7mGc__zouXGj0DK5kmCwGotf4Jn33AQPF50a4lI7ox1N1MAT1_lRMSR6bx
+      // AAPTxy8BH1VEsoebNVZXo8HurI_RfmIe9k9xWA71ZLIIsczdLg11Hph-QWgzWd0_r5sbUYYbNeWNxdxCB5WhkHUPjcK_CV3W_SGQCA0ssQEyUiLPKD-kWBBT_dklqzdiyvyAt17ZW1fGVdGFwgsNssf_YMkiJ7WYEqjWKjjUlgiNGrT3xSPA-LKs_qbwApw5QXTFICChry-vG-rS20YZQBgo018rBpeRFQpsDJKxsve3vIJiHMBAX0ChpUVIsPhwBBPXAT1_VcFa9Q1Z
+      esriConfig.apiKey = "AAPTxy8BH1VEsoebNVZXo8HurI_RfmIe9k9xWA71ZLIIsczdLg11Hph-QWgzWd0_r5sbUYYbNeWNxdxCB5WhkHUPjcK_CV3W_SGQCA0ssQEyUiLPKD-kWBBT_dklqzdiyvyAt17ZW1fGVdGFwgsNssf_YMkiJ7WYEqjWKjjUlgiNGrT3xSPA-LKs_qbwApw5QXTFICChry-vG-rS20YZQBgo018rBpeRFQpsDJKxsve3vIJiHMBAX0ChpUVIsPhwBBPXAT1_VcFa9Q1Z";
+
+      const map = new EsriMap({
+        basemap: "streets-navigation-vector"
+      });
+
+
+      const view = new MapView({
+        container: "viewDiv",
+        map: map,
+        center: [-97.7431, 30.2672],
+        scale: 60000000
+
+      });
+      // make a basemap gallery
+      const basemapGallery = new BasemapGallery({
+        view: view,
+      });
+
+      // Graphics layer
+      const graphicsLayer = new GraphicsLayer();
+      map.add(graphicsLayer);
+
+      const point = { //Create a point  
+        type: "point",
+        longitude: -97.750689,    //long lat of Stevie Ray Vaughan Statue
+        latitude: 30.263098
+      };
+
+      const simpleMarkerSymbol = {
+        type: "simple-marker",
+        color: [0, 0, 139],  // Color of blues rock
+        outline: {
+          color: [255, 255, 255], // White  
+          width: 1
+        }
+      };
+
+      const popupTemplate = {
+        title: "{Name}",
+        content: "{Description}"
+      }
+      const attributes = {
+        Name: "Stevie Ray Vaughan Statue",
+        Description: "A bronze sculpture of Stevie Ray Vaughan by Ralph Helmick"
+      }
+      const pointGraphic = new Graphic({
+        geometry: point,
+        symbol: simpleMarkerSymbol,
+        attributes: attributes,
+        popupTemplate: popupTemplate
+      });
+
+
+
+      // Polygon geometry
+      const polygon = {
+        type: "polygon",
+        rings: [
+          [
+            [-97.751, 30.2635],
+            [-97.749, 30.2635],
+            [-97.749, 30.2625],
+            [-97.751, 30.2625],
+            [-97.751, 30.2635]
+          ]
+        ]
+      };
+
+      // Polygon symbol
+      const polygonSymbol = {
+        type: "simple-fill",
+        color: [255, 0, 0, 0.3],
+        outline: {
+          color: [255, 0, 0],
+          width: 2
+        }
+      };
+
+      // Polygon graphic
+      const polygonGraphic = new Graphic({
+        geometry: polygon,
+        symbol: polygonSymbol
+      });
+
+
+      // Polyline geometry
+      const polyline = {
+        type: "polyline",
+        paths: [
+          [
+            [-97.752, 30.2630],
+            [-97.750, 30.2635],
+            [-97.748, 30.2628]
+          ]
+        ]
+      };
+
+      // Polyline symbol
+      const polylineSymbol = {
+        type: "simple-line",
+        color: [0, 128, 0], // green
+        width: 3
+      };
+
+      // Polyline graphic
+      const polylineGraphic = new Graphic({
+        geometry: polyline,
+        symbol: polylineSymbol
+      });
+
+
+      // neat trick, 'addMany' takes an array
+      graphicsLayer.addMany([pointGraphic, polygonGraphic, polylineGraphic]);
+
+
+      //wrap the gallery
+      const bgExpand = new Expand({
+        view: view,
+        content: basemapGallery,
+        expandIconClass: "esri-icon-basemap",
+        expanded: false,
+        expandTooltip: "Choose a basemap",
+        group: "top-left",
+        container: document.createElement("div")
+      });
+
+      bgExpand.container.classList.add("basemap-gallery-panel");
+
+      view.ui.add(bgExpand, "top-left");
+
+      // listen for changes
+      basemapGallery.watch("activeBasemap", (newBasemap) => {
+        console.log("User selected basemap:", newBasemap.title);
+      });
+      // search box
+      const searchWidget = new Search({
+        view: view,
+        allPlaceholder: "Find address or place"
+      });
+      view.ui.add(searchWidget, {
+        position: "top-right",
+        index: 0
+      });
+
+      // locate button
+      const locateWidget = new Locate({
+        view: view,
+        useHeadingEnabled: false,
+        goToOverride: function (view, options) {
+
+          return view.goTo({
+            target: options.target,
+            scale: 5000
+          });
+        }
+      });
+
+      view.ui.add(locateWidget, {
+        position: "top-right",
+        index: 1
+      });
+
+      // listen for coord returns
+      locateWidget.on("locate", function (event) {
+        console.log("Located user at:", event.position.coords);
+      });
+
+
+      // took a minute to figure out there's multiple layers in the url. 
+      const celestialLayer = new FeatureLayer({
+        url: "https://services9.arcgis.com/RHVPKKiFTONKtxq3/arcgis/rest/services/Day_Night_Terminator/FeatureServer/0",
+        popupTemplate: {
+          title: "Celestial Body",
+          content: `
+            <b>Description:</b> {description}<br>
+            <b>Timestamp:</b> {timestamp}
+        `
+        }
+      });
+
+      const horizonLayer = new FeatureLayer({
+        url: "https://services9.arcgis.com/RHVPKKiFTONKtxq3/arcgis/rest/services/Day_Night_Terminator/FeatureServer/1",
+        popupTemplate: {
+          title: "Horizon Line",
+          content: `
+            <b>Description:</b> {description}<br>
+            <b>Timestamp:</b> {timestamp}
+        `
+        }
+      });
+
+      const terminatorLayer = new FeatureLayer({
+        url: "https://services9.arcgis.com/RHVPKKiFTONKtxq3/arcgis/rest/services/Day_Night_Terminator/FeatureServer/2",
+        popupTemplate: {
+          title: "Terminator Polygon",
+          content: `
+            <b>Description:</b> {description}<br>
+            <b>Timestamp:</b> {timestamp}
+        `
+        }
+      });
+
+      // Add to map
+      map.addMany([terminatorLayer, horizonLayer, celestialLayer]);
+
+
+      const airportRenderer = {
+        "type": "simple",
+        "symbol": {
+          "type": "picture-marker",
+          "url": "https://chadlanoway.github.io/agol/local_airport.png",
+          "width": "18px",
+          "height": "18px"
+        }
+      }
+      const heliportRenderer = {
+        "type": "simple",
+        "symbol": {
+          "type": "picture-marker",
+          "url": "https://chadlanoway.github.io/agol/helicopter.png",
+          "width": "18px",
+          "height": "18px"
+        }
+      }
+      //const to make the airport labels
+      const airportLabels = {
+        symbol: {
+          type: "text",
+          color: "#FFFFFF",
+          haloColor: "#5E8D74",
+          haloSize: "2px",
+          font: {
+            size: "12px",
+            family: "Noto Sans",
+            style: "italic",
+            weight: "normal"
+          }
+        },
+        labelPlacement: "above-center",
+        labelExpressionInfo: {
+          expression: "$feature.Fac_Name"
+        }
+      };
+      const airportLayer = new FeatureLayer({
+        url: "https://services.arcgis.com/HRPe58bUyBqyyiCt/arcgis/rest/services/US_AirportsLab2/FeatureServer",
+        renderer: airportRenderer,
+        definitionExpression: "Fac_Type = 'AIRPORT'",
+        labelingInfo: [airportLabels],
+        featureReduction: { // i think server side clustering would work better
+          type: "cluster",
+          clusterRadius: "75px",
+          popupTemplate: {
+            title: "Cluster of {cluster_count} Airports",
+            content: "Click individual airports for details."
+          }
+        }
+      });
+
+      const heliportLayer = new FeatureLayer({
+        url: "https://services.arcgis.com/HRPe58bUyBqyyiCt/arcgis/rest/services/US_AirportsLab2/FeatureServer",
+        renderer: heliportRenderer,
+        definitionExpression: "Fac_Type = 'HELIPORT'",
+        labelingInfo: [airportLabels],
+        featureReduction: {
+          type: "cluster",
+          clusterRadius: "75px",
+          popupTemplate: {
+            title: "Cluster of {cluster_count} Helipads",
+            content: "Click individual helipads for details."
+          }
+        }
+      });
+
+      map.addMany([airportLayer, heliportLayer]);
+
+      //mouse listener
+      view.on("pointer-move", function (event) {
+        view.hitTest(event).then(function (response) {
+          const results = response.results;
+          const isOverTarget = results.some(result => {
+            const layer = result.graphic?.layer;
+            return layer === graphicsLayer ||
+              layer === celestialLayer ||
+              layer === horizonLayer ||
+              layer === terminatorLayer;
+          });
+
+          view.container.style.cursor = isOverTarget ? "pointer" : "default";
+        });
+      });
+
+
+    });
+
+
+  </script>
+  <style>
+    html,
+    body,
+    #viewDiv {
+      padding: 0;
+      margin: 0;
+      height: 100%;
+      width: 100%;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="viewDiv"></div>
+</body>
+
+</html>
