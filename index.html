@@ -6,8 +6,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <meta name="description" content="" />
-  <link rel="stylesheet" href="https://js.arcgis.com/4.25/esri/themes/light/main.css">
-  <script src="https://js.arcgis.com/4.25/"></script>
+  <link rel="stylesheet" href="https://js.arcgis.com/4.32/esri/themes/light/main.css">
+  <script src="https://js.arcgis.com/4.32/"></script>
   <script>
     require([
       "esri/config",
@@ -21,7 +21,9 @@
       "esri/layers/GraphicsLayer",
 
       //adding in the module for the feature layers
-      "esri/layers/FeatureLayer"
+      "esri/layers/FeatureLayer",
+      //add editor
+      "esri/widgets/Editor"
     ], function (
       esriConfig,
       EsriMap,
@@ -29,7 +31,7 @@
       BasemapGallery,
       Expand,
       Search,
-      Locate, Graphic, GraphicsLayer, FeatureLayer
+      Locate, Graphic, GraphicsLayer, FeatureLayer, Editor
     ) {
       // AAPTxy8BH1VEsoebNVZXo8HurI_RfmIe9k9xWA71ZLIIsczdLg11Hph-QWgzWd0_r5sbwnBerGwU8Wumof_lUh8dvOACtkjv05hpJVZUEfhD6boZk7bkfG7rJw19bjjE8jAAC-G_fXtuqjj5I3uDHPB1EGvWkBkfgHmutYJsNbTjw5I3iyTtwsO8soj9YfpgOvCnnUaIUGsrriFRQo9dOK7mGc__zouXGj0DK5kmCwGotf4Jn33AQPF50a4lI7ox1N1MAT1_lRMSR6bx
       // AAPTxy8BH1VEsoebNVZXo8HurI_RfmIe9k9xWA71ZLIIsczdLg11Hph-QWgzWd0_r5sbUYYbNeWNxdxCB5WhkHUPjcK_CV3W_SGQCA0ssQEyUiLPKD-kWBBT_dklqzdiyvyAt17ZW1fGVdGFwgsNssf_YMkiJ7WYEqjWKjjUlgiNGrT3xSPA-LKs_qbwApw5QXTFICChry-vG-rS20YZQBgo018rBpeRFQpsDJKxsve3vIJiHMBAX0ChpUVIsPhwBBPXAT1_VcFa9Q1Z
@@ -326,6 +328,32 @@
       });
 
 
+      //adding the const for the feature layer
+      const myAirports = new FeatureLayer({
+        url: "https://services.arcgis.com/HRPe58bUyBqyyiCt/arcgis/rest/services/Lanoway_My_Airports/FeatureServer",
+
+        //adding the popup here
+        outFields: ["AirportCode"],
+
+      });
+
+      //adding the feature layer to the map
+      map.add(myAirports);
+
+      // Set the point layer's LayerInfo
+      const pointInfos = {
+        layer: myAirports
+      }
+
+
+      // Begin Editor constructor
+      const editor = new Editor({
+        view: view,
+        layerInfos: [pointInfos]
+      }); // End Editor constructor
+
+      // Add the widget to the view
+      view.ui.add(editor, "top-right");
     });
 
 
