@@ -23,7 +23,9 @@
       //adding in the module for the feature layers
       "esri/layers/FeatureLayer",
       //add editor
-      "esri/widgets/Editor"
+      "esri/widgets/Editor",
+      //add legend
+      "esri/widgets/Legend"
     ], function (
       esriConfig,
       EsriMap,
@@ -31,7 +33,8 @@
       BasemapGallery,
       Expand,
       Search,
-      Locate, Graphic, GraphicsLayer, FeatureLayer, Editor
+      Locate, Graphic, GraphicsLayer, FeatureLayer, Editor,
+      Legend
     ) {
       // AAPTxy8BH1VEsoebNVZXo8HurI_RfmIe9k9xWA71ZLIIsczdLg11Hph-QWgzWd0_r5sbwnBerGwU8Wumof_lUh8dvOACtkjv05hpJVZUEfhD6boZk7bkfG7rJw19bjjE8jAAC-G_fXtuqjj5I3uDHPB1EGvWkBkfgHmutYJsNbTjw5I3iyTtwsO8soj9YfpgOvCnnUaIUGsrriFRQo9dOK7mGc__zouXGj0DK5kmCwGotf4Jn33AQPF50a4lI7ox1N1MAT1_lRMSR6bx
       // AAPTxy8BH1VEsoebNVZXo8HurI_RfmIe9k9xWA71ZLIIsczdLg11Hph-QWgzWd0_r5sbUYYbNeWNxdxCB5WhkHUPjcK_CV3W_SGQCA0ssQEyUiLPKD-kWBBT_dklqzdiyvyAt17ZW1fGVdGFwgsNssf_YMkiJ7WYEqjWKjjUlgiNGrT3xSPA-LKs_qbwApw5QXTFICChry-vG-rS20YZQBgo018rBpeRFQpsDJKxsve3vIJiHMBAX0ChpUVIsPhwBBPXAT1_VcFa9Q1Z
@@ -170,6 +173,13 @@
       basemapGallery.watch("activeBasemap", (newBasemap) => {
         console.log("User selected basemap:", newBasemap.title);
       });
+      // add legend
+      const legend = new Legend({
+        view: view
+      });
+
+      view.ui.add(legend, "bottom-left");
+
       // search box
       const searchWidget = new Search({
         view: view,
@@ -327,24 +337,108 @@
         });
       });
 
+      // icon for my airports
+      const myAirportsRenderer = {
+        type: "simple",
+        symbol: {
+          type: "point-3d", // Needed to allow symbolLayers
+          symbolLayers: [
+            {
+              type: "icon",
+              resource: {
+                href: "https://chadlanoway.github.io/agol/local_airport.png"
+              },
+              size: 18
+            },
+            {
+              type: "circle",  // the glow layer
+              material: { color: [255, 0, 0, 0.5] },  // red glow with transparency
+              size: 28,  // larger than icon to make glow visible
+              outline: {
+                color: [255, 0, 0],
+                size: 2
+              }
+            }
+          ]
+        }
+      };
 
-      //adding the const for the feature layer
-      const myAirports = new FeatureLayer({
+      // use airport code for label
+      const myAirportsLabels = {
+        symbol: {
+          type: "text",
+          color: "#FFFFFF",
+          haloColor: "#000000",
+          haloSize: "1px",
+          font: {
+            size: "12px",
+            family: "Noto Sans",
+            weight: "bold"
+          }
+        },
+        labelPlacement: "above-center",
+        labelExpressionInfo: {
+          expression: "$feature.AirportCode"
+        }
+      };
+
+      // red transparent circle
+      const myAirportsGlowLayer = new FeatureLayer({
         url: "https://services.arcgis.com/HRPe58bUyBqyyiCt/arcgis/rest/services/Lanoway_My_Airports/FeatureServer",
-
-        //adding the popup here
-        outFields: ["AirportCode"],
-
+        renderer: {
+          type: "simple",
+          symbol: {
+            type: "simple-marker",
+            color: [255, 0, 0, 0.3], // red transparent glow
+            size: "28px",
+            outline: {
+              color: [255, 0, 0],
+              width: 3
+            }
+          }
+        },
+        opacity: 1,
+        labelingInfo: []
       });
 
-      //adding the feature layer to the map
-      map.add(myAirports);
+      // airport PNG
+      const myAirportsLayer = new FeatureLayer({
+        url: "https://services.arcgis.com/HRPe58bUyBqyyiCt/arcgis/rest/services/Lanoway_My_Airports/FeatureServer",
+        outFields: ["AirportCode"],
+        renderer: {
+          type: "simple",
+          symbol: {
+            type: "picture-marker",
+            url: "https://chadlanoway.github.io/agol/local_airport.png",
+            width: "18px",
+            height: "18px"
+          }
+        },
+        labelingInfo: [{
+          symbol: {
+            type: "text",
+            color: "#FFFFFF",
+            haloColor: "#000000",
+            haloSize: "1px",
+            font: {
+              size: "12px",
+              family: "Noto Sans",
+              weight: "bold"
+            }
+          },
+          labelPlacement: "above-center",
+          labelExpressionInfo: {
+            expression: "$feature.AirportCode"
+          }
+        }]
+      });
+
+      map.addMany([myAirportsGlowLayer, myAirportsLayer]);
 
       // Set the point layer's LayerInfo
       const pointInfos = {
-        layer: myAirports
+        layer: myAirportsLayer
       }
-
 
       // Begin Editor constructor
       const editor = new Editor({
